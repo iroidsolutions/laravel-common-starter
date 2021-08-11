@@ -66,12 +66,119 @@
                 }
             }
         },
+        "/forgot-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Reset password",
+                "description": "Get reset link by email",
+                "requestBody": {
+                    "description": "Pass user email",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "iroid.test1@gmail.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Wrong email response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sorry, wrong email address. Please try again"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/change-password": {
+            "post": {
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Change password",
+                "description": "after successfully change password all tokens will be revoked except current one",
+                "requestBody": {
+                    "description": "",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "old_password",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "old_password": {
+                                        "type": "string",
+                                        "example": "password"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "admin123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "admin123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Your password has been changed successfully",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/register": {
             "post": {
                 "tags": [
                     "Auth"
                 ],
                 "summary": "Register user",
+                "description": "all filed are required except time zone",
                 "requestBody": {
                     "description": "",
                     "required": true,
@@ -115,10 +222,12 @@
                                         "example": "password"
                                     },
                                     "time_zone": {
+                                        "description": "if time zone not passed it will consider UTC",
                                         "type": "string",
                                         "example": "Asia/Kolkata"
                                     },
                                     "profile_pic": {
+                                        "description": "",
                                         "type": "string",
                                         "format": "binary"
                                     }
@@ -148,7 +257,7 @@
         "/logout": {
             "post": {
                 "tags": [
-                    "Auth"
+                    "Common"
                 ],
                 "summary": "User logout",
                 "requestBody": {

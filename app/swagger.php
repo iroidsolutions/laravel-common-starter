@@ -38,12 +38,61 @@
 
 
 
+ 
+/**
+ * @OA\Post(
+ * path="/forgot-password",
+ * summary="Reset password",
+ * description="Get reset link by email",
+ * tags={"Auth"},
+ * @OA\RequestBody(
+ *    required=true,
+ *    description="Pass user email",
+ *    @OA\JsonContent(
+ *       required={"email"},
+ *       @OA\Property(property="email", type="string", format="email", example="iroid.test1@gmail.com"),
+ *    ),
+ * ),
+ * @OA\Response(
+ *    response=422,
+ *    description="Wrong email response",
+ *    @OA\JsonContent(
+ *       @OA\Property(property="message", type="string", example="Sorry, wrong email address. Please try again")
+ *        )
+ *     )
+ * )
+ */
+
+ /**
+     *  @OA\Post(path="/change-password", summary="Change password", tags={"Settings"}, security={{ "BearerAuth"={} }},
+     *     description="after successfully change password all tokens will be revoked except current one",
+     *     @OA\RequestBody(description="", required=true,
+     *         @OA\MediaType(mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(property="old_password", type="string", example="password"),
+     *                 @OA\Property(property="password", type="string", example="admin123"),
+     *                 @OA\Property(property="password_confirmation", type="string", example="admin123"),
+     *                 required={"old_password", "password", "password_confirmation"},
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(response="200", description="Your password has been changed successfully",
+     *         @OA\MediaType(mediaType="application/json")
+     *     ),
+     *     @OA\Response(response="422", description="Validation error",
+     *         @OA\MediaType(mediaType="application/json")
+     *     ),
+     *  )
+     */
+
+
 
 
 /**
  * @OA\Post(
  *     path="/register",
  *     summary="Register user",
+ *     description="all filed are required except time zone",
  *     tags={"Auth"},
  *     security={},
  *     @OA\RequestBody(description="", required=true,
@@ -54,8 +103,8 @@
  *                 @OA\Property(property="email", type="string", format="email", example="iroid.test1@gmail.com"),
  *                 @OA\Property(property="password", type="string", minimum="8", example="password"),
  *                 @OA\Property(property="password_confirmation", type="string", minimum="8", example="password"),
- *                 @OA\Property(property="time_zone", type="string", example="Asia/Kolkata"),
- *                 @OA\Property(property="profile_pic", type="string", format="binary"),
+ *                 @OA\Property(property="time_zone", type="string", example="Asia/Kolkata", description="if time zone not passed it will consider UTC"),
+ *                 @OA\Property(property="profile_pic", type="string", format="binary", description=""),
  *                 required={"email", "first_name","last_name", "password", "password_confirmation", "profile_pic"}
  *             ),
  *         ),
@@ -75,7 +124,7 @@
  /**
  * @OA\Post(
  *  path="/logout",
- *  tags={"Auth"},
+ *  tags={"Common"},
  *  security={{ "BearerAuth"={} }},
  *  summary="User logout",
  *     @OA\RequestBody(description="", required=true,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UserRegistrationRequest;
 use App\Http\Resources\UserResource;
@@ -10,6 +11,7 @@ use App\Models\User;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Laravel\Passport\Client as OClient;
 
@@ -76,6 +78,31 @@ class UserController extends Controller
                 throw new HttpException($e->getCode(), 'Either refresh token is expired or revoked');
             }
         }
+    }
+
+
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        $user = User::find(Auth::id());
+        // check old password
+        if (!Hash::check($request->old_password, $user->password)) {
+            return response()->json(['error' => 'Sorry, invalid password. Please try again.'], 422);
+        }
+
+        // update
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        //revoke all tokens except current one
+        $accessToken = auth()->user()->token();
+        $tokens= $request->user()->tokens;
+        foreach ($tokens as $token) {
+            if($token->id!=$accessToken->id){
+                $token->revoke();
+            }
+            
+        }
+        return [ 'message' => 'Password changed successfully' ];
     }
 
 }
