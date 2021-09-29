@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LogoutController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ForgotPasswordController;
+use App\Http\Controllers\Auth\SocialLoginController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -30,7 +31,7 @@ Route::group(
         })->middleware('guest')->name('password.reset');
         // Route::post('/reset-password',[ForgotPasswordController::class,'updatePassword'])->name('password.update');
 
-
+        Route::post('/social/login', [SocialLoginController::class,'socialLogin']);
         Route::post('/login',[AuthController::class, 'Login']);
         Route::post('/register',[AuthController::class, 'Register']);
         Route::post('/refresh-token',[UserController::class, 'refreshToken']);

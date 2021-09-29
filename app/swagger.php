@@ -212,5 +212,32 @@
 
 
 
+ /**
+     *  @OA\Post(path="/social/login", summary="Social login", tags={"Auth"},
+     *     @OA\RequestBody(description="If email is empty then send it in this format: ***provider_id@provider_type.com*** i.e ***100384341197888609672@google.com***", required=true,
+     *         @OA\MediaType(mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(property="full_name", type="string", example="salman ansari"),
+     *                 @OA\Property(property="email", type="string", example="salman.iroid@gmail.com"),
+     *                 @OA\Property(property="profile_picture", type="string", example="http://example.com/test.jpg"),
+     *                 @OA\Property(property="provider_id", type="string", example="100384341197888609672"),
+     *                 @OA\Property(property="provider_type", type="string", enum=SOCIAL_PROVIDER_TYPES, example="google"),
+     *                 @OA\Property(property="token", description="The short lived access token that you receives from the provider a.k.a OAuth Token", type="string", example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...."),
+     *                 required={"email", "provider_id", "provider_type", "token"}
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(response="200", description="Logged in successfully",
+     *         @OA\MediaType(mediaType="application/json")
+     *     ),
+     *     @OA\Response(response="401", description="Unauthenticated",
+     *         @OA\MediaType(mediaType="application/json")
+     *     ),
+     *     @OA\Response(response="422", description="Validation error",
+     *         @OA\MediaType(mediaType="application/json")
+     *     ),
+     *  )
+     */
+
 
 ?>

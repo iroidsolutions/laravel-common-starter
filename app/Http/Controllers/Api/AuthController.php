@@ -13,8 +13,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 use function PHPUnit\Framework\isEmpty;
 
@@ -22,6 +22,10 @@ class AuthController extends Controller
 {
     //
     public function Register(UserRegistrationRequest $request){
+        $check=User::where('email',$request->email)->where('is_social',0)->first();
+        if($check){
+            return response()->json(['error' => 'Email allready exist'], 422);
+        }
         $img = '';
         if($request->has('profile_pic')){
             $name = $request->file('profile_pic')->getClientOriginalName();
@@ -38,8 +42,7 @@ class AuthController extends Controller
         $id=$user->id;
         $user = User::where('id', $id)->update(['profile_pic' => $img]);
         $user = User::whereId($id)->first();
-
-        $oClient = OClient::where('password_client', 1)->first();
+        $oClient = OClient::where('password_client', 1)->orderBy('id','desc')->first();
         $accessToken = $this->getTokenAndRefreshToken($oClient, $user->email, $password)->getData();
         return (new UserResource($user))->additional(['data' => ['access_token' => $accessToken]]);
 
@@ -48,8 +51,7 @@ class AuthController extends Controller
 
     public function Login(Request $request){
 
-        $user = User::where('email',$request->email)->first();
-
+        $user = User::where('email',$request->email)->where('is_social',0)->first();
         if($user && (Hash::check($request->password,$user->password))){
             $user->last_login = Carbon::now();
             $user->save();
@@ -63,16 +65,12 @@ class AuthController extends Controller
         }
 
     }
-
-
-
-
-
+    
     public function getTokenAndRefreshToken(OClient $oClient, $email, $password) {
-        $oClient = OClient::where('password_client', 1)->first();
+        $oClient = OClient::where('password_client', 1)->orderBy('id','desc')->first();
         $http = new Client;
         $url = env('APP_URL').'/oauth/token';
-        // try{
+        try{
             $response = $http->request('POST', $url, [
                 'form_params' => [
                     'grant_type' => 'password',
@@ -85,11 +83,16 @@ class AuthController extends Controller
             ]);
             $result = json_decode((string) $response->getBody(), true);
             return response()->json($result, 200);
-        // }catch (GuzzleException $exception) {
-        //     if ($exception->getCode() === 400) {
-        //         throw new UnauthorizedHttpException('', 'Incorrect email or password');
-        //     }
-        // }
+        }catch (GuzzleException $exception) {
+            // dd($exception);
+            if ($exception->getCode() === 400) {
+                throw new UnauthorizedHttpException('', 'Incorrect email or password');
+            }
+        }
 
     }
+
+    
+
+    
 }

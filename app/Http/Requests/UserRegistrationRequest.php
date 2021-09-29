@@ -28,6 +28,7 @@ class UserRegistrationRequest extends FormRequest
             'first_name'=>'required|min:4',
             'last_name'=>'required|min:4',
             'email' => 'required|email|unique:users,email',
+            'email' => 'required|email',
             'password' => 'required|min:8|confirmed',
             'profile_pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'time_zone' => 'string|nullable|sometimes',

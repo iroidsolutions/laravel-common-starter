@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use App\Resolvers\SocialUserResolver;
+use Coderello\SocialGrant\Resolvers\SocialUserResolverInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,4 +30,7 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
         date_default_timezone_set('Asia/Kolkata');
     }
+    public $bindings = [
+        SocialUserResolverInterface::class => SocialUserResolver::class,
+    ];
 }
