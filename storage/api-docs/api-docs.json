@@ -516,7 +516,7 @@
                 }
             }
         },
-        "/appVersion": {
+        "/force/update": {
             "post": {
                 "tags": [
                     "Common"

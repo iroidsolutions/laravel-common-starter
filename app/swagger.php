@@ -243,7 +243,7 @@
 
      /**
      * @OA\Post(
-     *     path="/appVersion",
+     *     path="/force/update",
      *     summary="Result status 1->stands for force update, 2->recommend to update, 0->Allready up to date",
      *     tags={"Common"}, security={{}},
      *     @OA\RequestBody(description="Pass current app version and type(iOS/Android)", required=true,

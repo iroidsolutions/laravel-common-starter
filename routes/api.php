@@ -46,7 +46,7 @@ Route::group(
         });
 
 
-        Route::post('/appVersion',[ CommonController::class,'appVersion']);
+        Route::post('/force/update',[ CommonController::class,'appVersion']);
         // Route::middleware('auth:api')->get('/user', function (Request $request) {
         //     return $request->user();
         // });

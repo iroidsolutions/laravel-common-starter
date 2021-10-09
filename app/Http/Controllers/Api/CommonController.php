@@ -17,16 +17,21 @@ class CommonController extends Controller
         if($type!="iOS" && $type!="Android"){
             return \response()->json(['message' => "invalid device type"], 422);
         }
-        $data=Appversion::select('applink')->where('platform',$request->type)->first();
-        $minversion=$data->minversion;
-        $currentversion=$data->version;
+        $checkData=Appversion::where('platform',$request->type)->first();
+        $minversion=$checkData->minversion;
+        $currentversion=$checkData->version;
+        $data=new stdClass();
+        $data->applink=$checkData->applink;
         if($minversion>$version){
             $data->status=1;
+            $data->message='Update Forcefully';
             return \response()->json(['data' => $data], 200);
         }else if($currentversion>$version){
+            $data->message='Recommend to update';
             $data->status=2;
             return \response()->json(['data' => $data], 200);
         }else{
+            $data->message='Allready up to date';
             $data->status=0;
             return \response()->json(['data' => $data], 200);
         }
