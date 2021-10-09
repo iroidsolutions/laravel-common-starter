@@ -240,4 +240,29 @@
      */
 
 
+
+     /**
+     * @OA\Post(
+     *     path="/appVersion",
+     *     summary="Result status 1->stands for force update, 2->recommend to update, 0->Allready up to date",
+     *     tags={"Common"}, security={{}},
+     *     @OA\RequestBody(description="Pass current app version and type(iOS/Android)", required=true,
+     *         @OA\MediaType(mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(property="version", type="string", example="1.6"),
+     *                 @OA\Property(property="type", type="string", example="iOS"),
+     *                 required={"version", "type"}
+     *             ),
+     *         ),
+     *     ),
+     *     @OA\Response(response="200", description="result fetched",
+     *         @OA\MediaType(mediaType="application/json")
+     *     ),
+     *     @OA\Response(response="401", description="Unauthenticated",
+     *         @OA\MediaType(mediaType="application/json")
+     *     ),
+     *  )
+     */
+
+
 ?>

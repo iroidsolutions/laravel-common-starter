@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CommonController;
 use App\Http\Controllers\Api\LogoutController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ForgotPasswordController;
@@ -43,6 +44,9 @@ Route::group(
             Route::post('/change-password', [UserController::class, 'changePassword']);
 
         });
+
+
+        Route::post('/appVersion',[ CommonController::class,'appVersion']);
         // Route::middleware('auth:api')->get('/user', function (Request $request) {
         //     return $request->user();
         // });
