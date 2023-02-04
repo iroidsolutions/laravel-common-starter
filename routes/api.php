@@ -33,6 +33,7 @@ Route::group(
         // Route::post('/reset-password',[ForgotPasswordController::class,'updatePassword'])->name('password.update');
 
         Route::post('/social/login', [SocialLoginController::class,'socialLogin']);
+        Route::post('/apple/login', [SocialLoginController::class,'appleLogin']);
         Route::post('/login',[AuthController::class, 'Login']);
         Route::post('/register',[AuthController::class, 'Register']);
         Route::post('/refresh-token',[UserController::class, 'refreshToken']);
@@ -54,5 +55,3 @@ Route::group(
 
 
 );
-
-

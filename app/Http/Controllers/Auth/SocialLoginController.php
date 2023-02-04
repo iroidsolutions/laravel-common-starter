@@ -16,7 +16,11 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\HttpFoundation\Response as ResponseWithConstant;
+use Laravel\Socialite\Two\User as OAuthTwoUser;
+use Illuminate\Support\Str;
 
 class SocialLoginController extends Controller
 {
@@ -70,34 +74,6 @@ class SocialLoginController extends Controller
     public function getTokenAndRefreshTokenForSocial($provider, $providertoken) {
 
 
-//         $oClient = OClient::where('password_client', 1)->first();
-// $http = new Client;
-
-// $response = $http->post(env('APP_URL') . '/oauth/token', [
-//     RequestOptions::FORM_PARAMS => [
-//         'grant_type' => 'social', // static 'social' value
-//         'client_id' => $oClient->id, // client id
-//         'client_secret' => $oClient->secret, // client secret
-//         'provider' => $provider, // name of provider (e.g., 'facebook', 'google' etc.)
-//         'access_token' => $providertoken, // access token issued by specified provider
-//     ],
-//     RequestOptions::HTTP_ERRORS => false,
-// ]);
-// $data = json_decode($response->getBody()->getContents(), true);
-// dd($response->getStatusCode());
-// if ($response->getStatusCode() === Response::HTTP_OK) {
-//     $accessToken = Arr::get($data, 'access_token');
-//     $expiresIn = Arr::get($data, 'expires_in');
-//     $refreshToken = Arr::get($data, 'refresh_token');
-
-//     // success logic
-// } else {
-//     $message = Arr::get($data, 'message');
-//     $hint = Arr::get($data, 'hint');
-
-//     // error logic
-// }
-
         $oClient = OClient::where('password_client', 1)->orderBy('id','desc')->first();
         // dd($providertoken);
         $http = new Client;
@@ -120,5 +96,83 @@ class SocialLoginController extends Controller
             }
         }
 
+    }
+
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function appleLogin(Request $request)
+    {
+        $provider = 'apple';
+        $token = $request->token;
+
+        $socialUser = Socialite::driver($provider)->userFromToken($token);
+        $user = $this->getLocalUser($socialUser);
+
+        $client = DB::table('oauth_clients')
+            ->where('password_client', true)
+            ->first();
+        if (!$client) {
+            return response()->json([
+                'message' => trans('validation.passport.client_error'),
+                'status' => ResponseWithConstant::HTTP_INTERNAL_SERVER_ERROR
+            ], ResponseWithConstant::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        $data = [
+            'grant_type' => 'social',
+            'client_id' => $client->id,
+            'client_secret' => $client->secret,
+            'provider' => 'apple',
+            'access_token' => $token
+        ];
+        $request = Request::create('/oauth/token', 'POST', $data);
+
+        $content = json_decode(app()->handle($request)->getContent());
+        if (isset($content->error) && $content->error === 'invalid_request') {
+            return response()->json(['error' => true, 'message' => $content->message]);
+        }
+
+        return response()->json(
+            [
+                'error' => false,
+                'data' => [
+                    'user' => $user,
+                    'meta' => [
+                        'token' => $content->access_token,
+                        'expired_at' => $content->expires_in,
+                        'refresh_token' => $content->refresh_token,
+                        'type' => 'Bearer'
+                    ],
+                ]
+            ],
+            ResponseWithConstant::HTTP_OK
+        );
+    }
+
+
+    protected function getLocalUser(OAuthTwoUser $socialUser): ?User
+    {
+        $user = User::where('email', $socialUser->email)->first();
+
+        if (!$user) {
+            $user = $this->registerAppleUser($socialUser);
+        }
+
+        return $user;
+    }
+
+    protected function registerAppleUser(OAuthTwoUser $socialUser): ?User
+    {
+       $user = User::create(
+            [
+                'full_name' => request()->fullName ? request()->fullName : 'Apple User',
+                'email' => $socialUser->email,
+                'password' => Str::random(30), // Social users are password-less
+                
+            ]
+        );
+        return $user;
     }
 }
