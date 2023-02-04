@@ -106,13 +106,13 @@ class SocialLoginController extends Controller
     {
         $provider = 'apple';
         $token = $request->token;
-
         $socialUser = Socialite::driver($provider)->userFromToken($token);
         $user = $this->getLocalUser($socialUser);
 
         $client = DB::table('oauth_clients')
             ->where('password_client', true)
             ->first();
+
         if (!$client) {
             return response()->json([
                 'message' => trans('validation.passport.client_error'),

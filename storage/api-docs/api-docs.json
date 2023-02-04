@@ -516,6 +516,84 @@
                 }
             }
         },
+        "/apple/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Apple login",
+                "requestBody": {
+                    "description": "If email is empty then send it in this format: ***provider_id@provider_type.com*** i.e ***100384341197888609672@google.com***",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "provider_id",
+                                    "provider_type",
+                                    "token"
+                                ],
+                                "properties": {
+                                    "full_name": {
+                                        "type": "string",
+                                        "example": "salman ansari"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "salman.iroid@gmail.com"
+                                    },
+                                    "profile_picture": {
+                                        "type": "string",
+                                        "example": "http://example.com/test.jpg"
+                                    },
+                                    "provider_id": {
+                                        "type": "string",
+                                        "example": "100384341197888609672"
+                                    },
+                                    "provider_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "google",
+                                            "facebook",
+                                            "apple",
+                                            "github"
+                                        ],
+                                        "example": "google"
+                                    },
+                                    "token": {
+                                        "description": "The short lived access token that you receives from the provider a.k.a OAuth Token",
+                                        "type": "string",
+                                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Logged in successfully",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
         "/force/update": {
             "post": {
                 "tags": [
