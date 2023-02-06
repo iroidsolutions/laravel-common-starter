@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Facade\FlareClient\Http\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -67,6 +68,41 @@ class SocialLoginController extends Controller
             return (new UserResource($user))->additional(['data' => ['access_token' => $accessToken]]);
         }
 
+    }
+
+    public function allSocialLogin(Request $request){
+        $validated = $request->validate([
+            'provider_type' => 'required',
+            'token' => 'required',
+        ]);
+        $provider = $request->provider_type;
+        $token = $request->token;
+        try{
+            $socialUser = Socialite::driver($provider)->userFromToken($token);
+        }catch(Exception $e){
+            return response()->json(['data' => ['message'=> $e->getMessage()]],$e->getCode());
+        }
+        $check=User::where('email', $socialUser->email)->where('is_social',1)->where('provider', $provider)->first();
+        if($check){
+            $accessToken = $this->getTokenAndRefreshTokenForSocial($provider, $request->token)->getData();
+            $check->access_token = $accessToken;
+            return response()->json(['data' => $check]);
+        }
+        $user = new User();
+        $user->email = $socialUser->email;
+        $user->provider_id = $socialUser->id;
+        $user->provider = $provider;
+        $user->profile_pic = $socialUser->avatar_original;
+        $user->first_name = $socialUser->name;
+        $user->last_name = '';
+        $user->is_social = 1;
+        $user->created_at = Carbon::now();
+        $user->updated_at = Carbon::now();
+        $user->save();
+
+        $accessToken = $this->getTokenAndRefreshTokenForSocial($provider, $request->token)->getData();
+        $user->access_token=$accessToken;
+        return response()->json(['data'=> $user]);
     }
 
 
